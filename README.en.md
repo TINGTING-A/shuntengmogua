@@ -1,6 +1,8 @@
 # ShunTengMoGua — AI Intelligent Office Partner
 
 > A visible, tangible, and interactive desktop AI workstation. Built on ReAct Agent, integrating browser automation, RAG knowledge base, IM bots, MCP tools, and the Skills framework. One engine serves Web, Desktop, and IM through a unified interface. **Currently in early development; some features are evolving rapidly.**
+>
+> 📌 This project is based on [GuaDa](https://github.com/donggua-zen/guada), with gratitude to the original author for their open-source contribution.
 
 [![NestJS](https://img.shields.io/badge/NestJS-11.x-red.svg)](https://nestjs.com)
 [![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js&logoColor=white)](https://vuejs.org)
@@ -394,5 +396,20 @@ ai_chat/
 ## License
 
 This project is open-sourced under the [MIT License](LICENSE).
+
+---
+
+## Acknowledgments
+
+This project is built upon [GuaDa](https://github.com/donggua-zen/guada). Special thanks to the original author [@donggua-zen](https://github.com/donggua-zen) and the GuaDa community for their open-source work.
+
+ShunTengMoGua extends GuaDa with:
+- MAF / LangGraph Agent orchestration engine (replaces hand-written ReAct loop)
+- 29 sub-agent system (12 skill agents + 5 enterprise connectors + core agents)
+- Mem0 long-term memory, 3D companion sprite, stress monitoring
+- CRDT Personal Bus (Yjs + E2EE), GraphRAG knowledge graph
+- Light/dark dual-theme wallpapers, full brand customization
+
+> Licensed under MIT, inherited from the GuaDa project.
 
 ---

@@ -1,6 +1,8 @@
 # 顺藤摸瓜 — AI 智能办公伙伴
 
 > 看得见、摸得着、能动手的桌面 AI 工作站。基于 ReAct Agent，集成浏览器自动化、RAG 知识库、IM 机器人、MCP 工具与 Skills 技能框架，一个引擎统一服务 Web / 桌面 / IM 三大入口。**目前处于早期开发阶段，部分功能正在持续快速迭代中。**
+>
+> 📌 本项目基于 [GuaDa（瓜达AI工作站）](https://github.com/donggua-zen/guada) 二次开发，感谢原作者的开源贡献。
 
 [![NestJS](https://img.shields.io/badge/NestJS-11.x-red.svg)](https://nestjs.com)
 [![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js&logoColor=white)](https://vuejs.org)
@@ -394,5 +396,20 @@ ai_chat/
 ## 许可证
 
 本项目基于 [MIT License](LICENSE) 开源。
+
+---
+
+## 致谢
+
+本项目基于 [GuaDa（瓜达AI工作站）](https://github.com/donggua-zen/guada) 二次开发，感谢原作者 [@donggua-zen](https://github.com/donggua-zen) 及 GuaDa 社区的开源贡献。
+
+顺藤摸瓜在 GuaDa 的基础上进行了以下增强：
+- MAF / LangGraph Agent 编排引擎（替代手写 ReAct 循环）
+- 29 子智能体体系（12 技能 Agent + 5 企业连接器 + 核心 Agent）
+- Mem0 长期记忆引擎、3D 伴生精灵、压力预警仪
+- CRDT 个人总线（Yjs + E2EE）、GraphRAG 知识图谱
+- 深色/浅色双主题壁纸、完整品牌定制
+
+> 开源协议 MIT，继承自 GuaDa 项目。
 
 ---
