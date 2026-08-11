@@ -168,10 +168,14 @@
                       </el-button>
                     </div>
                     <!-- API Key 获取链接（仅非自定义供应商显示） -->
-                    <div v-if="currentProviderEdit.provider !== 'custom'" class="mt-2">
+                    <div v-if="currentProviderEdit.provider !== 'custom'" class="api-key-actions mt-2 flex items-center gap-2">
                       <el-link type="primary" :underline="false" @click="handleOpenApiKeyUrl" class="text-xs">
                         <el-icon class="mr-1"><LinkOutlined /></el-icon>
                         获取 API Key
+                      </el-link>
+                      <span class="text-gray-300 dark:text-gray-600 text-xs">|</span>
+                      <el-link type="danger" :underline="false" @click="handleClearApiKey" class="text-xs">
+                        清除密钥
                       </el-link>
                     </div>
                   </el-form-item>
@@ -1121,6 +1125,12 @@ const handleOpenApiKeyUrl = () => {
   } else {
     notify.warning('提示', '该供应商暂未配置 API Key 获取地址', { duration: 2000 })
   }
+}
+
+// 清除 API Key（断开连接）
+const handleClearApiKey = async () => {
+  currentProviderEdit.value.apiKey = ''
+  await handleSaveProvider()
 }
 
 // 组件卸载时清除计时器（现在由 useDebounceFn 自动处理）
