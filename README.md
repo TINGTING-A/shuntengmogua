@@ -1,4 +1,4 @@
-# GuaDa — 桌面 AI 工作站
+# 顺藤摸瓜 — AI 智能办公伙伴
 
 > 看得见、摸得着、能动手的桌面 AI 工作站。基于 ReAct Agent，集成浏览器自动化、RAG 知识库、IM 机器人、MCP 工具与 Skills 技能框架，一个引擎统一服务 Web / 桌面 / IM 三大入口。**目前处于早期开发阶段，部分功能正在持续快速迭代中。**
 
@@ -14,8 +14,8 @@
 
 ## 项目仓库
 
-- **GitHub**: https://github.com/donggua-zen/guada
-- **Gitee**: https://gitee.com/zhendongdong/guada_ai
+- **GitHub**: https://github.com/TINGTING-A/shuntengmogua
+- **Gitee**: https://gitee.com/TINGTING-A/shuntengmogua
 
 ---
 
@@ -26,7 +26,7 @@
 ## 目录
 
 - [能用来干嘛？](#能用来干嘛)
-- [适用人群 & 为什么选择 GuaDa](#适用人群--为什么选择-guada)
+- [适用人群 & 为什么选择 顺藤摸瓜](#适用人群--为什么选择-shuntengmogua)
 - [核心优势](#核心优势)
 - [整体架构](#整体架构)
 - [核心引擎](#核心引擎)
@@ -65,11 +65,11 @@
 | 场景 | 建议 |
 |------|------|
 | **大型项目编码** | 请使用 Claude Code、Cursor 等专业编码 Agent |
-| **视频 / 短剧生成** | 可用 GuaDa 进行剧本和分镜创作，再导入即梦、Sora 等专业平台生成，效果最佳 |
+| **视频 / 短剧生成** | 可用 顺藤摸瓜 进行剧本和分镜创作，再导入即梦、Sora 等专业平台生成，效果最佳 |
 
 ---
 
-## 适用人群 & 为什么选择 GuaDa
+## 适用人群 & 为什么选择 顺藤摸瓜
 
 ### 适合谁用？
 
@@ -128,7 +128,7 @@
 
 ### Agent 对话引擎
 
-GuaDa 的核心是一个实现了 **ReAct (Reasoning + Acting) 模式** 的多轮自治循环引擎：
+顺藤摸瓜 的核心是一个实现了 **ReAct (Reasoning + Acting) 模式** 的多轮自治循环引擎：
 
 **关键设计**：
 
@@ -147,7 +147,7 @@ GuaDa 的核心是一个实现了 **ReAct (Reasoning + Acting) 模式** 的多�
 
 采用 **两级压缩策略**（优先裁剪工具结果→再语义压缩），在 Token 限制与信息保真之间取得平衡。
 
-与传统方案不同，GuaDa 的压缩**非破坏性、可逆**：
+与传统方案不同，顺藤摸瓜 的压缩**非破坏性、可逆**：
 
 - **可编辑**：AI 生成的摘要不准确时，可手动修改内容
 - **可回退**：删除任意压缩记录，自动还原对应历史消息，对话回到压缩前状态
@@ -266,7 +266,7 @@ Electron 桌面端内嵌 Chromium 浏览器引擎，Agent 可直接操控浏览�
 ```bash
 cd backend-ts
 npm install              # 自动执行 prisma generate
-npm run db:seed:force    # 初始化种子数据（默认账户 guada / guada）
+npm run db:seed:force    # 初始化种子数据（默认账户 admin / 123456）
 npm run start:dev        # 开发模式启动 → http://localhost:3000
 ```
 

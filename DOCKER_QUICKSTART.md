@@ -1,4 +1,4 @@
-# GuaDa AI Docker 快速开始
+# 顺藤摸瓜 Docker 快速开始
 
 ## 5 分钟快速部署
 
@@ -42,7 +42,7 @@ deploy.bat
 
 > 💡 **提示**：默认配置下后端端口不暴露。如需直接访问后端（调试用），请查看 [完整文档](docs/DOCKER_DEPLOYMENT.md) 中的「如何开启后端端口」章节。
 
-默认账户：`guada` / `guada`
+默认账户：`admin` / `123456`
 
 ---
 
@@ -69,10 +69,10 @@ docker-compose logs -f        # 查看日志
 
 ```bash
 # 备份数据库
-docker cp guada-backend:/app/data/ai_chat.db ./backup.db
+docker cp shundengmougua-backend:/app/data/ai_chat.db ./backup.db
 
 # 恢复数据库
-docker cp ./backup.db guada-backend:/app/data/ai_chat.db
+docker cp ./backup.db shundengmougua-backend:/app/data/ai_chat.db
 docker-compose restart backend
 ```
 

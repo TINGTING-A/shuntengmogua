@@ -71,7 +71,7 @@ services:
       - backend-logs:/app/logs
       - backend-static:/app/static
     networks:
-      - guada-network
+      - shuntengmogua-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/settings/auto-login"]
       interval: 30s
@@ -108,7 +108,7 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - guada-network
+      - shuntengmogua-network
     # volumes:
     #   - ./nginx/ssl:/etc/nginx/ssl:ro  # Optional: SSL certificates
     healthcheck:
@@ -147,7 +147,7 @@ volumes:
 #     volumes:
 #       - ollama-data:/root/.ollama
 #     networks:
-#       - guada-network
+#       - shuntengmogua-network
 #     deploy:
 #       resources:
 #         limits:
@@ -169,7 +169,7 @@ volumes:
 #     ports:
 #       - "8080:8080"
 #     networks:
-#       - guada-network
+#       - shuntengmogua-network
 #     deploy:
 #       resources:
 #         limits:
@@ -182,5 +182,5 @@ volumes:
 #               capabilities: [gpu]
 
 networks:
-  guada-network:
+  shuntengmogua-network:
     driver: bridge

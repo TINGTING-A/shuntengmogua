@@ -1,7 +1,7 @@
 {
-  "name": "guada",
+  "name": "shuntengmogua",
   "version": "0.1.8",
-  "description": "GuaDa Application with Web and Electron support",
+  "description": "顺藤摸瓜 — AI 智能办公伙伴",
   "private": true,
   "main": "electron/dist/main.js",
   "scripts": {
@@ -52,8 +52,8 @@
     "wait-on": "^9.0.0"
   },
   "build": {
-    "appId": "com.guada.app",
-    "productName": "GuaDa",
+    "appId": "com.shuntengmogua.app",
+    "productName": "顺藤摸瓜",
     "npmRebuild": false,
     "asar": {
       "smartUnpack": true
@@ -193,15 +193,15 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "GuaDa",
+      "shortcutName": "顺藤摸瓜",
       "differentialPackage": true,
       "deleteAppDataOnUninstall": true
     },
     "publish": [
       {
         "provider": "github",
-        "owner": "your-username",
-        "repo": "guada"
+        "owner": "TINGTING-A",
+        "repo": "shuntengmogua"
       },
       {
         "provider": "generic",

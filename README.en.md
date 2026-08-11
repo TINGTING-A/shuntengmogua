@@ -1,4 +1,4 @@
-# GuaDa — Desktop AI Workstation
+# ShunTengMoGua — AI Intelligent Office Partner
 
 > A visible, tangible, and interactive desktop AI workstation. Built on ReAct Agent, integrating browser automation, RAG knowledge base, IM bots, MCP tools, and the Skills framework. One engine serves Web, Desktop, and IM through a unified interface. **Currently in early development; some features are evolving rapidly.**
 
@@ -14,8 +14,8 @@
 
 ## Repositories
 
-- **GitHub**: https://github.com/donggua-zen/guada
-- **Gitee**: https://gitee.com/zhendongdong/guada_ai
+- **GitHub**: https://github.com/TINGTING-A/shuntengmogua
+- **Gitee**: https://gitee.com/TINGTING-A/shuntengmogua
 
 ---
 
@@ -26,7 +26,7 @@ For questions, feedback, technical discussions, or pre-built client downloads, j
 ## Table of Contents
 
 - [What Can It Do?](#what-can-it-do)
-- [Target Audience & Why GuaDa](#target-audience--why-guada)
+- [Target Audience & Why ShunTengMoGua](#target-audience--why-shuntengmogua)
 - [Core Strengths](#core-strengths)
 - [Overall Architecture](#overall-architecture)
 - [Core Engine](#core-engine)
@@ -65,11 +65,11 @@ For questions, feedback, technical discussions, or pre-built client downloads, j
 | Scenario | Recommendation |
 |------|------|
 | **Large-scale Project Coding** | Use Claude Code, Cursor, or other professional coding agents |
-| **Video / Short Film Generation** | Use GuaDa for script and storyboard creation, then import into professional platforms like Jimeng or Sora for best results |
+| **Video / Short Film Generation** | Use ShunTengMoGua for script and storyboard creation, then import into professional platforms like Jimeng or Sora for best results |
 
 ---
 
-## Target Audience & Why GuaDa
+## Target Audience & Why ShunTengMoGua
 
 ### Who Is It For?
 
@@ -128,7 +128,7 @@ For questions, feedback, technical discussions, or pre-built client downloads, j
 
 ### Agent Dialogue Engine
 
-GuaDa's core is a multi-turn autonomous loop engine implementing the **ReAct (Reasoning + Acting) pattern**:
+ShunTengMoGua's core is a multi-turn autonomous loop engine implementing the **ReAct (Reasoning + Acting) pattern**:
 
 **Key Designs**:
 
@@ -147,7 +147,7 @@ GuaDa's core is a multi-turn autonomous loop engine implementing the **ReAct (Re
 
 Adopts a **two-level compression strategy** (prioritize trimming tool results → then semantic compression), balancing Token limits and information fidelity.
 
-Unlike traditional solutions, GuaDa's compression is **non-destructive and reversible**:
+Unlike traditional solutions, ShunTengMoGua's compression is **non-destructive and reversible**:
 
 - **Editable**: When AI-generated summaries are inaccurate, content can be manually modified
 - **Reversible**: Delete any compression record to automatically restore corresponding historical messages, returning the dialogue to pre-compression state
@@ -266,7 +266,7 @@ Unified LLM adapter layer, flexibly connecting to multiple model providers:
 ```bash
 cd backend-ts
 npm install              # Automatically runs prisma generate
-npm run db:seed:force    # Initialize seed data (default account guada / guada)
+npm run db:seed:force    # Initialize seed data (default account admin / 123456)
 npm run start:dev        # Development mode -> http://localhost:3000
 ```
 
