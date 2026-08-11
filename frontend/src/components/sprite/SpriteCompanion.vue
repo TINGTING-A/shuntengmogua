@@ -167,21 +167,24 @@ function createEggCharacter(): THREE.Group {
     const white = new THREE.Mesh(eyeGeom, whiteMat)
     eyeGroup.add(white)
 
-    const pupilGeom = new THREE.SphereGeometry(0.13, 16, 16)
-    const pupilMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.1, depthTest: true, depthWrite: true })
+    const pupilGeom = new THREE.SphereGeometry(0.17, 16, 16)
+    const pupilMat = new THREE.MeshStandardMaterial({ color: 0x14142a, roughness: 0.1, depthTest: true, depthWrite: true })
     const pupil = new THREE.Mesh(pupilGeom, pupilMat)
-    pupil.position.z = 0.12
+    // 关键：瞳孔球心必须伸出眼白表面（眼白半径 0.22 → 球心 0.36），
+    // 否则瞳孔嵌在眼白内部只露一小截，看起来像没有眼睛
+    pupil.position.z = 0.36
     eyeGroup.add(pupil)
 
-    const highlight1Geom = new THREE.SphereGeometry(0.05, 8, 8)
+    // 高光贴瞳孔表面外侧（瞳孔表面 z≈0.53），偏上不遮瞳孔中心
+    const highlight1Geom = new THREE.SphereGeometry(0.035, 8, 8)
     const highlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false })
     const highlight1 = new THREE.Mesh(highlight1Geom, highlightMat)
-    highlight1.position.set(0.06, 0.08, 0.18)
+    highlight1.position.set(0.07, 0.09, 0.54)
     eyeGroup.add(highlight1)
 
-    const highlight2Geom = new THREE.SphereGeometry(0.025, 8, 8)
+    const highlight2Geom = new THREE.SphereGeometry(0.02, 8, 8)
     const highlight2 = new THREE.Mesh(highlight2Geom, highlightMat)
-    highlight2.position.set(-0.04, -0.02, 0.17)
+    highlight2.position.set(-0.05, -0.04, 0.52)
     eyeGroup.add(highlight2)
 
     eyeGroup.position.set(px, py, 1.1)
