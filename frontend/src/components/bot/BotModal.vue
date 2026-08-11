@@ -377,9 +377,11 @@ const loadCharacters = async () => {
   try {
     const response = await apiService.fetchCharacters()
     characters.value = response.items || []
-  } catch (error) {
+  } catch (error: any) {
     console.error('获取角色列表失败:', error)
-    ElMessage.error('获取角色列表失败')
+    if (!error.isAuthError) {
+      ElMessage.error('获取角色列表失败')
+    }
   }
 }
 

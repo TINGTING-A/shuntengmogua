@@ -377,9 +377,12 @@ const loadModels = async (): Promise<void> => {
       const textModels = provider.models?.filter((m: any) => m.modelType === 'text') || [];
       models.value.push(...textModels);
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('获取模型列表失败:', error);
-    notify.error('获取模型列表失败', error);
+    // auth 错误已由拦截器处理跳转，不重复弹窗
+    if (!error.isAuthError) {
+      notify.error('获取模型列表失败', error);
+    }
   }
 };
 
@@ -447,9 +450,12 @@ const loadCharacters = async (): Promise<void> => {
       // 初始化完成，恢复 watch 监听
       isInitializing.value = false;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('获取角色列表失败:', error);
-    notify.error('获取角色列表失败', error);
+    // auth 错误已由拦截器处理跳转，不重复弹窗
+    if (!error.isAuthError) {
+      notify.error('获取角色列表失败', error);
+    }
     // 即使出错也要恢复标志
     isInitializing.value = false;
   }
