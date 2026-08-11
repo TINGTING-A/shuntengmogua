@@ -160,12 +160,11 @@ function createEggCharacter(): THREE.Group {
   body.renderOrder = 0
   group.add(body)
 
-  const eyeWhiteGeom = new THREE.SphereGeometry(0.22, 32, 32)
-
   function createEye(px: number, py: number) {
     const eyeGroup = new THREE.Group()
+    const eyeGeom = new THREE.SphereGeometry(0.22, 32, 32)
     const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, depthTest: true, depthWrite: true })
-    const white = new THREE.Mesh(eyeWhiteGeom, whiteMat)
+    const white = new THREE.Mesh(eyeGeom, whiteMat)
     eyeGroup.add(white)
 
     const pupilGeom = new THREE.SphereGeometry(0.13, 16, 16)
