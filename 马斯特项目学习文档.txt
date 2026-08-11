@@ -1,0 +1,160 @@
+文件夹翻译
+一、prisma：数据库ORM工具目录（Prisma，数据库模型、迁移文件存放处）
+1. migrations（文件夹）
+直译：数据库迁移目录
+作用：存放所有数据库版本变更脚本，用于同步、更新数据库表结构。
+
+四个迁移文件夹（Prisma数据库迁移版本，前缀是日期）
+1）20260509_remove_model_fk_constraints
+翻译：2026年05月09日_移除数据模型外键约束
+作用：本次迁移删除表之间的外键关联限制
+
+2）20260527_add_message_metadata
+翻译：2026年05月27日_新增消息元数据字段
+作用：给消息表增加扩展信息字段
+
+3）20260427090000_init_bot_management
+翻译：2026年04月27日09点_初始化机器人管理数据表
+作用：创建机器人管理相关基础表结构
+
+4）20260502000000_fix_session_context_state_schema
+翻译：2026年05月02日_修复会话上下文状态数据表结构
+作用：修正会话状态表的字段、索引等结构问题
+2.文件migration_lock.toml
+翻译：迁移锁定配置文件
+作用：Prisma用来锁定当前数据库使用的迁移工具，防止多人同时执行迁移产生冲突
+
+1）migration.sql
+直译：数据库迁移SQL脚本
+说明：里面是可直接执行的原生SQL语句，记录本次数据库结构变更（这里是移除外键约束的SQL代码），执行该文件就能同步更新数据库表结构。
+
+代码翻译：
+ALTER TABLE "message"
+操作对象：名为 message（消息）的数据表
+ADD COLUMN "meta_data"
+动作：给这张表新增一列，列名 meta_data
+meta_data = metadata，中文：元数据、附加扩展信息
+JSONB
+PostgreSQL专属数据类型：二进制JSON，用来存储JSON格式的复杂附加数据，支持索引、查询，性能比普通JSON更好。
+整段业务说明
+这条SQL的作用：
+给项目里的消息表增加一个用来存放消息额外扩展信息的JSON字段，比如消息来源、附件参数、自定义标签、设备信息等灵活的非固定数据。
+对应你之前看到的迁移文件夹 20260527_add_message_metadata，完全对应上了
+
+
+二、整体项目数据库总结
+1. 项目定位
+这是一套私有化AI大模型对话+RAG知识库+多渠道机器人完整后端数据库，属于NestJS+Prisma+PostgreSQL架构的AI应用系统。
+2. 五大核心业务模块
+（1）用户与权限模块
+user 用户账号、登录密码
+user_setting 用户个性化配置
+global_settings 系统全局参数
+存储账号、系统/个人偏好配置。
+（2）大模型与服务商管理模块
+model_provider 第三方模型服务商（OpenAI/阿里/百度等）
+model 服务商下具体大模型
+mcp_server 外部工具插件服务
+统一管理API密钥、模型参数、联网/函数调用工具。
+（3）AI角色/智能体模块
+character_group 角色分组
+character 自定义AI人设Agent
+支持创建不同人设AI，分组管理，绑定专属模型。
+（4）对话会话核心模块
+session 对话会话总表
+message 消息主表
+message_content 消息完整文本、推理内容
+session_context_state 长对话上下文压缩管理
+memory AI长期记忆
+完整支撑多轮对话、分支对话、自动记忆、超长上下文摘要优化。
+（5）RAG知识库模块
+knowledge_base 知识库容器
+kb_file 知识库上传文档/文件夹
+kb_chunk 文档分块与向量索引
+支持文档上传、自动文本切割、向量检索，用于私有知识库问答。
+（6）多渠道机器人部署模块
+bot_instance 多平台机器人实例
+支持将AI人设部署到网页、微信、第三方平台，管理渠道登录、运行状态、自动重连。
+（7）文件附件模块
+file 聊天上传附件（图片/文档）
+区分于知识库文件，仅用于对话临时附件传输。
+3. 数据库设计特点
+外键级联管理：大量使用外键约束，自动处理数据关联删除/更新，保证数据一致性；
+JSONB灵活扩展：配置、元数据、参数全部用JSONB存储，无需频繁改表结构；
+分表拆分：消息主表与消息内容分离，避免单表数据量过大；
+完整索引优化：所有关联查询、筛选字段均建立索引，海量对话、知识库查询不卡顿；
+业务闭环：从用户登录→模型配置→创建角色→开启对话→上传知识库→部署机器人，完整覆盖AI产品全流程功能。
+
+
+
+2. schema.prisma（文件）
+直译：数据库模型定义文件
+作用：Prisma 的核心配置文件，定义数据表、字段、关联关系、数据库连接信息。
+
+
+三、整体总结
+1. 文件定位
+这是整套AI对话系统的 Prisma ORM 数据模型定义文件，底层使用SQLite数据库，和之前你看到的初始化SQL迁移文件一一对应：
+model 对应SQL CREATE TABLE
+@map("xxx") 对应SQL真实字段名
+@relation 对应SQL外键约束
+@index 对应SQL索引创建语句
+2. 系统六大业务模块（模型分组）
+用户与配置模块
+User 用户、UserSetting 用户配置、McpServer 工具服务
+管理账号登录、个性化偏好、外部插件工具
+大模型服务商模块
+ModelProvider 服务商、Model 具体大模型
+统一管理各家大模型API密钥、推理参数
+AI角色管理模块
+CharacterGroup 角色分组、Character 自定义AI人设Agent
+支持创建、分组、共享智能体人设
+对话会话核心模块
+SessionGroup 会话分组、Session 会话、Message 消息、MessageContent 消息详情、Memory 长期记忆、SessionContextState 上下文压缩
+完整支撑多轮对话、分支对话、AI记忆、超长上下文自动摘要优化
+RAG知识库模块
+KnowledgeBase 知识库、KBFile 文档/文件夹、KBChunk 文本分块向量
+私有文档上传、自动切割、向量检索问答
+多渠道机器人&文件模块
+BotInstance 多平台机器人、File 聊天临时附件
+支持AI机器人部署到外部渠道，聊天附件上传存储
+3. 核心设计特点
+悬空引用设计
+大量关联不配置onDelete: Cascade，删除模型/角色时会话、知识库保留旧ID，由业务层手动清理，避免误删批量对话数据。
+JSON弹性字段
+配置、元数据、扩展参数统一使用Json类型，无需频繁修改数据表结构，适配AI多变参数。
+分表解耦
+消息主表与消息内容拆分、知识库文件与向量分块拆分，避免单表数据臃肿。
+完善索引
+所有关联查询、筛选字段全部建立索引，海量对话、知识库检索性能优化。
+完整生命周期字段
+每张表统一 createdAt/updatedAt 创建、更新时间，自动维护。
+一对多关联清晰
+用户-会话、会话-消息、知识库-文档、文档-向量块等层级关系通过Prisma relation实现ORM联表查询。
+
+
+
+
+
+
+
+
+
+scripts：脚本目录（存放各类自动化执行脚本）
+src：源代码目录（项目业务核心代码）
+static：静态资源目录（图片、静态文件等）
+test：单元/集成测试目录
+test-logs：测试日志存放目录
+文件翻译
+docker-entrypoint.sh：Docker容器启动入口脚本
+Dockerfile：Docker镜像构建配置文件
+jest.config.js：Jest单元测试框架配置文件
+nest-cli.json：NestJS框架命令行配置文件
+package.json：NodeJS项目依赖、脚本配置清单
+package-lock.json：依赖版本锁定文件（保证环境依赖一致）
+prisma.config.js：Prisma数据库JS格式配置文件
+prisma.config.ts：Prisma数据库TS格式配置文件
+run_bm25_comparison.bat：Windows批处理脚本，用于执行BM25算法对比测试
+tsconfig.json：TypeScript主编译配置文件
+tsconfig.test.json：测试专用TypeScript编译配置文件
+

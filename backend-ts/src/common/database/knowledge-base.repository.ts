@@ -1,0 +1,62 @@
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../common/database/prisma.service";
+
+@Injectable()
+export class KnowledgeBaseRepository {
+  constructor(private prisma: PrismaService) {}
+
+  async findById(id: string) {
+    return this.prisma.knowledgeBase.findUnique({
+      where: { id },
+      include: { embeddingModel: true },
+    });
+  }
+
+  /**
+   * 批量查询知识库（使用 in 查询提升效率）
+   */
+  async findByIds(ids: string[]) {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+    return this.prisma.knowledgeBase.findMany({
+      where: { id: { in: ids } },
+      include: { embeddingModel: true },
+    });
+  }
+
+  async findAll(skip: number = 0, limit: number = 20) {
+    const [items, total] = await Promise.all([
+      this.prisma.knowledgeBase.findMany({
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        include: { embeddingModel: true },
+      }),
+      this.prisma.knowledgeBase.count(),
+    ]);
+    return { items, total };
+  }
+
+  async create(data: any) {
+    return this.prisma.knowledgeBase.create({
+      data,
+      include: { embeddingModel: true },
+    });
+  }
+
+  async update(id: string, data: any) {
+    return this.prisma.knowledgeBase.update({
+      where: { id },
+      data,
+      include: { embeddingModel: true },
+    });
+  }
+
+  async delete(id: string) {
+    return this.prisma.knowledgeBase.delete({
+      where: { id },
+    });
+  }
+
+}

@@ -1,0 +1,122 @@
+/**
+ * 会话相关类型定义
+ */
+
+import type { ISODateString, DeepPartial } from './common'
+// 注意：不要重新导出 Message，避免循环依赖
+import type { Character } from './character'
+
+/**
+ * 会话设置
+ */
+export interface SessionSettings {
+    thinkingEffort?: string // 思考强度级别：'off' | 'on' | 'low' | 'medium' | 'high' | 'max' 等
+    maxMemoryLength?: number
+    systemPrompt?: string
+    [key: string]: any
+}
+
+/**
+ * 输入消息状态
+ */
+export interface InputMessageState {
+    content: string
+    files: any[]
+    knowledgeBaseIds?: string[]
+    isWaiting: boolean
+}
+
+/**
+ * 会话状态（用于 Store）
+ */
+export interface SessionState {
+    messages: any[]  // 使用 any 避免循环导入
+    isStreaming: boolean
+    isCompressing: boolean
+    inputMessage: InputMessageState
+    scrollPosition: number
+    lastUpdated: number
+    settings: SessionSettings
+    title?: string
+}
+
+/**
+ * 会话模型配置
+ */
+export interface SessionModel {
+    id: string
+    modelName: string
+    providerId?: string
+}
+
+/**
+ * 会话对象
+ */
+export interface Session {
+    id: string
+    title: string
+    character: Character
+    characterId: string
+    modelId: string
+    model?: SessionModel
+    userId: string
+    settings: SessionSettings
+    createdAt: ISODateString
+    updatedAt: ISODateString
+    lastActiveAt?: ISODateString
+    avatarUrl?: string
+    
+    // === Bot 会话专用字段 ===
+    sessionType?: string      // "web" | "bot"
+    botId?: string            // Bot 实例ID
+    platform?: string         // 来源平台: 'qq', 'wechat'
+    externalId?: string       // 外部会话标识,格式: "platform:type:nativeId"
+    workspacePath?: string | null  // 自定义工作目录路径
+    groupId?: string | null         // 会话分组ID
+    // ==================================
+
+    // === 侧边栏状态字段（后端注入或前端维护） ===
+    isStreaming?: boolean     // 是否正在流式响应（后端注入）
+    // ==================================
+}
+
+/**
+ * 创建会话请求数据
+ */
+export interface CreateSessionRequest {
+    characterId: string
+    modelId?: string
+    title?: string
+    settings?: Partial<SessionSettings>
+}
+
+/**
+ * 更新会话请求数据
+ */
+export interface UpdateSessionRequest {
+    title?: string
+    modelId?: string
+    settings?: Partial<SessionSettings>
+}
+
+/**
+ * 会话分组
+ */
+export interface SessionGroup {
+    id: string
+    name: string
+    userId: string
+    sortOrder: number
+    createdAt: ISODateString
+    updatedAt: ISODateString
+}
+
+/**
+ * 会话列表响应
+ */
+export interface SessionListResponse {
+    items: Session[]
+    total: number
+    page: number
+    pageSize: number
+}

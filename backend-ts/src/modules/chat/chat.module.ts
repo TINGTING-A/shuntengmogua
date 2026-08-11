@@ -1,0 +1,72 @@
+import { Module, OnModuleInit, forwardRef } from "@nestjs/common";
+
+import { AgentEngine } from "./agent-engine.service";
+import { SessionContextService } from "./session-context.service";
+import { ToolOrchestrator } from "../tools/tool-orchestrator.service";
+import { TokenizerService } from "../../common/utils/tokenizer.service";
+import { ChatController } from "./chat.controller";
+import { MessagesController } from "./messages.controller";
+import { SessionGroupController } from "./session-group.controller";
+import { SessionGroupService } from "./session-group.service";
+import { SessionsController } from "./sessions.controller";
+import { WorkspaceEventsController } from "./workspace-events.controller";
+import { MessageService } from "./message.service";
+import { SessionService } from "./session.service";
+import { AuthModule } from "../auth/auth.module";
+import { ToolsModule } from "../tools/tools.module";
+import { CharactersModule } from "../characters/characters.module";
+import { FilesModule } from "../files/files.module";
+import { LlmCoreModule } from "../llm-core/providers.module";
+import { SkillsModule } from "../skills/skills.module";
+import { AgentsModule } from "../agents/agents.module";
+
+import { SessionStreamManager } from "./session-stream.manager";
+import { SessionEventsService } from "./session-events.service";
+import { SessionEventsController } from "./session-events.controller";
+import { UploadPathService } from "../../common/services/upload-path.service";
+import { FileWatcherService } from "../../common/services/file-watcher.service";
+import { ChatRunnerService } from "./chat-runner.service";
+import { ToolCallDisplayUtil } from "./utils/tool-call-display.util";
+import { SpriteService } from "./sprite.service";
+import { MafAgentOrchestrator } from "./maf/maf-orchestrator.service";
+
+import { MessageStoreService } from "./message-store.service";
+import { CompressionEngine } from "./compression-engine";
+import { ConversationContextFactory, MESSAGE_STORE_TOKEN, COMPRESSION_STRATEGY_TOKEN } from "./conversation-context.factory";
+
+@Module({
+  imports: [AuthModule, ToolsModule, CharactersModule, FilesModule, LlmCoreModule, SkillsModule, forwardRef(() => AgentsModule)],
+  controllers: [ChatController, MessagesController, SessionsController, SessionGroupController, WorkspaceEventsController, SessionEventsController],
+  providers: [
+    AgentEngine,
+    SessionContextService,
+    MessageStoreService,
+    CompressionEngine,
+    ConversationContextFactory,
+    { provide: MESSAGE_STORE_TOKEN, useExisting: MessageStoreService },
+    { provide: COMPRESSION_STRATEGY_TOKEN, useExisting: CompressionEngine },
+    MessageService,
+    SessionService,
+    SessionGroupService,
+
+    SessionStreamManager,
+    TokenizerService,
+    UploadPathService,
+    FileWatcherService,
+    SessionEventsService,
+    ChatRunnerService,
+    ToolCallDisplayUtil,
+    SpriteService,
+    MafAgentOrchestrator,
+  ],
+  exports: [AgentEngine, SessionService, MessageService, SessionEventsService, ChatRunnerService, SpriteService, MafAgentOrchestrator],
+})
+export class ChatModule implements OnModuleInit {
+  constructor(
+    private toolOrchestrator: ToolOrchestrator, // 从 ToolsModule 注入
+  ) { }
+
+  onModuleInit() {
+    // KnowledgeBaseToolProvider 已在 ToolsModule 中注册，无需再次添加
+  }
+}

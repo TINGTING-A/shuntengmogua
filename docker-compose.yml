@@ -1,0 +1,186 @@
+services:
+  # ========================================
+  # Backend Service (NestJS)
+  # ========================================
+  backend:
+    build:
+      context: ./backend-ts
+      dockerfile: Dockerfile
+    container_name: shundengmougua-backend
+    restart: unless-stopped
+    # 端口配置说明：
+    # - 默认不暴露后端端口（最安全），前端 Nginx 已通过 Docker 内部网络访问后端
+    # - 如需本地调试，取消下面注释：ports: ["127.0.0.1:3000:3000"]
+    # - 如需公开访问，取消下面注释：ports: ["3000:3000"]
+    # ports:
+    #   - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=file:/app/data/ai_chat.db
+      - VECTOR_DB_PATH=/app/data/vector_db.sqlite
+      - JWT_SECRET=${JWT_SECRET:-change-this-to-a-strong-secret-key-in-production}
+      - JWT_EXPIRES_IN=7d
+      - BASE_URL=
+      - STATIC_DIR=/app/static
+      - STATIC_URL=/static
+      - UPLOAD_ROOT_DIR=/app/data/uploads
+      - UPLOAD_URL_PREFIX=/uploads
+      - LOGS_DIR=/app/logs
+      # Token Cache
+      - TOKEN_CACHE_MAX_ENTRIES=10000
+      - TOKEN_CACHE_MAX_MEMORY_MB=50
+      - TOKEN_CACHE_TTL_MS=1800000
+      # LLM API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      # Ollama (本地大模型)
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
+      # Mem0 记忆引擎
+      - MEM0_API_KEY=${MEM0_API_KEY:-}
+      - MEM0_HOST=${MEM0_HOST:-}
+      # BGE-M3 嵌入 (Ollama)
+      - EMBEDDING_API_BASE=${EMBEDDING_API_BASE:-http://ollama:11434}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-bge-m3}
+      # 语音服务
+      - WHISPER_API_BASE=${WHISPER_API_BASE:-http://ollama:11434}
+      - WHISPER_MODEL=${WHISPER_MODEL:-whisper-large-v3}
+      - FISH_SPEECH_API_BASE=${FISH_SPEECH_API_BASE:-}
+      - FISH_SPEECH_VOICE=${FISH_SPEECH_VOICE:-default}
+      # 企业连接器
+      - NOTION_API_KEY=${NOTION_API_KEY:-}
+      - DINGTALK_APP_KEY=${DINGTALK_APP_KEY:-}
+      - FEISHU_APP_ID=${FEISHU_APP_ID:-}
+      - WECOM_CORP_ID=${WECOM_CORP_ID:-}
+      - WPS_APP_KEY=${WPS_APP_KEY:-}
+      # 邮箱IMAP
+      - EMAIL_IMAP_HOST=${EMAIL_IMAP_HOST:-}
+      - EMAIL_IMAP_PORT=${EMAIL_IMAP_PORT:-993}
+      - EMAIL_USER=${EMAIL_USER:-}
+      - EMAIL_PASS=${EMAIL_PASS:-}
+      - EMAIL_TLS=${EMAIL_TLS:-true}
+      # 3D模型生成
+      - MESHY_API_KEY=${MESHY_API_KEY:-}
+      # 浏览器自动化
+      - BROWSER_USE_API_KEY=${BROWSER_USE_API_KEY:-}
+    volumes:
+      # Persistent data
+      - backend-data:/app/data
+      - backend-uploads:/app/data/uploads
+      - backend-logs:/app/logs
+      - backend-static:/app/static
+    networks:
+      - guada-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/settings/auto-login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # ========================================
+  # Frontend Service (Vue + Nginx with reverse proxy)
+  # ========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=/api/v1
+    container_name: shundengmougua-frontend
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:8787:80"
+      - "[::]:8787:80"
+      # 可选：启用 HTTPS
+      # - "0.0.0.0:443:443"
+      # - "[::]:443:443"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - guada-network
+    # volumes:
+    #   - ./nginx/ssl:/etc/nginx/ssl:ro  # Optional: SSL certificates
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+volumes:
+  backend-data:
+    driver: local
+  backend-uploads:
+    driver: local
+  backend-logs:
+    driver: local
+  backend-static:
+    driver: local
+
+# ========================================
+# Optional: Ollama (local LLM + embedding)
+# Uncomment to enable offline AI capabilities
+# ========================================
+#   ollama:
+#     image: ollama/ollama:latest
+#     container_name: shundengmougua-ollama
+#     restart: unless-stopped
+#     volumes:
+#       - ollama-data:/root/.ollama
+#     networks:
+#       - guada-network
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: '4'
+#           memory: 8G
+
+# volumes:
+#   ollama-data:
+#     driver: local
+#
+# ========================================
+# Optional: Fish Speech (local TTS)
+# Uncomment to enable local voice synthesis
+# ========================================
+#   fish-speech:
+#     image: fishaudio/fish-speech:latest
+#     container_name: shundengmougua-fish-speech
+#     restart: unless-stopped
+#     ports:
+#       - "8080:8080"
+#     networks:
+#       - guada-network
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: '4'
+#           memory: 8G
+#         reservations:
+#           devices:
+#             - driver: nvidia
+#               count: 1
+#               capabilities: [gpu]
+
+networks:
+  guada-network:
+    driver: bridge

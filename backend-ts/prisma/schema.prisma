@@ -1,0 +1,389 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model SessionGroup {
+  id        String    @id @default(cuid())
+  name      String
+  userId    String    @map("user_id")
+  sortOrder Int       @default(0) @map("sort_order")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  sessions  Session[]
+
+  @@index([userId])
+  @@map("session_group")
+}
+
+model Session {
+  id            String                @id @default(cuid())
+  title         String?
+  userId        String                @map("user_id")
+  avatarUrl     String?               @map("avatar_url")
+  description   String?
+  modelId       String?               @map("model_id")
+  characterId   String?               @map("character_id")
+  groupId       String?               @map("group_id")
+  settings      Json?
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @updatedAt @map("updated_at")
+  lastActiveAt  DateTime?             @map("last_active_at")
+  sessionType   String?               @default("web") @map("session_type")
+  botId         String?               @map("bot_id")
+  platform      String?
+  externalId    String?               @map("external_id")
+  workspacePath String?               @map("workspace_path")
+  memories      Memory[]
+  messages      Message[]
+  character     Character?            @relation(fields: [characterId], references: [id])
+  user          User                  @relation(fields: [userId], references: [id])
+  group         SessionGroup?         @relation(fields: [groupId], references: [id])
+  // 注意：不配置 onDelete，允许悬空引用。删除 Model 时需业务层手动处理或保留过期ID
+  model         Model?                @relation(fields: [modelId], references: [id])
+  contextStates SessionContextState[]
+
+  @@index([userId])
+  @@index([sessionType])
+  @@index([botId])
+  @@index([platform])
+  @@index([externalId])
+  @@index([botId, externalId])
+  @@index([groupId])
+  @@map("session")
+}
+
+model Message {
+  id             String           @id @default(cuid())
+  sessionId      String           @map("session_id")
+  role           String
+  parentId       String?          @map("parent_id")
+  currentTurnsId String?          @map("current_turns_id")
+  metadata       Json?            @map("meta_data")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  files          File[]
+  // 注意：使用 NoAction 避免删除 Model 时自动置空 modelId
+  // 保留 ORM 层面关联查询能力（include/join）
+  session        Session          @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  parent         Message?         @relation("MessageThread", fields: [parentId], references: [id])
+  children       Message[]        @relation("MessageThread")
+  contents       MessageContent[]
+
+  @@index([sessionId])
+  @@index([parentId])
+  @@index([currentTurnsId])
+  @@map("message")
+}
+
+model MessageContent {
+  id               String   @id @default(cuid())
+  messageId        String   @map("message_id")
+  turnsId          String   @map("turns_id")
+  role             String?
+  content          String
+  reasoningContent String?  @map("reasoning_content")
+  additionalKwargs Json?    @map("additional_kwargs")
+  metadata         Json?    @map("meta_data")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  message          Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@index([turnsId])
+  @@map("message_content")
+}
+
+model ModelProvider {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  name       String
+  provider   String
+  protocol   String?
+  apiUrl     String   @map("api_url")
+  apiKey     String?  @map("api_key")
+  avatarUrl  String?  @map("avatar_url")
+  attributes Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  models     Model[]
+
+  // 注意：删除时关联 Model 被级联删除，但其他表对 Model 的引用ID保留（悬空引用设计）。未来如需自动清理，需修改 Session/Character/KnowledgeBase 的 onDelete 策略
+  @@map("model_provider")
+}
+
+model Model {
+  id             String          @id @default(cuid())
+  name           String?
+  providerId     String          @map("provider_id")
+  modelName      String          @map("model_name")
+  modelType      String          @map("model_type")
+  config         Json?           @map("config")
+  isFavorite     Boolean         @default(false) @map("is_favorite")
+  isActive       Boolean         @default(true) @map("is_active")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  characters     Character[]
+  knowledgeBases KnowledgeBase[]
+  // 注意：删除 ModelProvider 时，关联的 Model 被级联删除，但 Session/Character/KnowledgeBase 中的引用ID保留（悬空引用设计）
+  provider       ModelProvider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  sessions       Session[]
+
+  @@map("model")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  role           String?
+  avatarUrl      String?         @map("avatar_url")
+  wallpaperUrl   String?         @map("wallpaper_url")
+  parentId       String?         @map("parent_id")
+  nickname       String?
+  username       String          @unique
+  passwordHash   String          @map("password_hash")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  botInstances   BotInstance[]
+  characters     Character[]
+  knowledgeBases KnowledgeBase[]
+  mcpServers     McpServer[]
+  sessions       Session[]
+  settings       UserSetting?
+
+  @@map("user")
+}
+
+model CharacterGroup {
+  id         String      @id @default(cuid())
+  name       String
+  userId     String      @map("user_id")
+  sortOrder  Int         @default(0) @map("sort_order")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  characters Character[]
+
+  @@map("character_group")
+}
+
+model Character {
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  title       String
+  description String?
+  avatarUrl   String?         @map("avatar_url")
+  isPublic    Boolean         @default(false) @map("is_public")
+  modelId     String?         @map("model_id")
+  groupId     String?         @map("group_id")
+  settings    Json?
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  group       CharacterGroup? @relation(fields: [groupId], references: [id])
+  // 注意：不配置 onDelete，允许悬空引用。删除 Model 时需业务层手动处理或保留过期ID
+  model       Model?          @relation(fields: [modelId], references: [id])
+  user        User            @relation(fields: [userId], references: [id])
+  sessions    Session[]
+
+  @@map("character")
+}
+
+model KnowledgeBase {
+  id               String   @id @default(cuid())
+  name             String
+  description      String?
+  userId           String   @map("user_id")
+  embeddingModelId String   @map("embedding_model_id")
+  chunkMaxSize     Int      @default(1000) @map("chunk_max_size")
+  chunkOverlapSize Int      @default(100) @map("chunk_overlap_size")
+  chunkMinSize     Int      @default(50) @map("chunk_min_size")
+  isActive         Boolean  @default(true) @map("is_active")
+  isPublic         Boolean  @default(false) @map("is_public")
+  metadataConfig   Json?    @map("metadata_config")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  files            KBFile[]
+  // 注意：不配置 onDelete，允许悬空引用。删除 Model 时需业务层手动处理或保留过期ID
+  embeddingModel   Model    @relation(fields: [embeddingModelId], references: [id])
+  user             User     @relation(fields: [userId], references: [id])
+
+  @@map("knowledge_base")
+}
+
+model KBFile {
+  id                 String        @id @default(cuid())
+  knowledgeBaseId    String        @map("knowledge_base_id")
+  fileName           String        @map("file_name")
+  displayName        String        @map("display_name")
+  fileSize           Int           @map("file_size")
+  fileType           String        @map("file_type")
+  fileExtension      String        @map("file_extension")
+  contentHash        String        @map("content_hash")
+  filePath           String?       @map("file_path")
+  content            String?
+  relativePath       String?       @map("relative_path")
+  parentFolderId     String?       @map("parent_folder_id")
+  isDirectory        Boolean       @default(false) @map("is_directory")
+  processingStatus   String        @default("pending") @map("processing_status")
+  progressPercentage Int           @default(0) @map("progress_percentage")
+  currentStep        String?       @map("current_step")
+  errorMessage       String?       @map("error_message")
+  totalChunks        Int           @default(0) @map("total_chunks")
+  totalTokens        Int           @default(0) @map("total_tokens")
+  uploadedAt         DateTime      @default(now()) @map("uploaded_at")
+  processedAt        DateTime?     @map("processed_at")
+  chunks             KBChunk[]
+  knowledgeBase      KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
+  parent             KBFile?       @relation("FolderHierarchy", fields: [parentFolderId], references: [id])
+  children           KBFile[]      @relation("FolderHierarchy")
+
+  @@index([knowledgeBaseId])
+  @@index([contentHash])
+  @@index([processingStatus])
+  @@index([parentFolderId])
+  @@index([knowledgeBaseId, relativePath])
+  @@map("kb_file")
+}
+
+model KBChunk {
+  id                  String   @id @default(cuid())
+  fileId              String   @map("file_id")
+  knowledgeBaseId     String   @map("knowledge_base_id")
+  content             String
+  chunkIndex          Int      @map("chunk_index")
+  vectorId            String?  @map("vector_id")
+  embeddingDimensions Int?     @map("embedding_dimensions")
+  tokenCount          Int      @default(0) @map("token_count")
+  metadata            Json?
+  createdAt           DateTime @default(now()) @map("created_at")
+  file                KBFile   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@index([fileId])
+  @@index([knowledgeBaseId])
+  @@index([vectorId])
+  @@map("kb_chunk")
+}
+
+model Memory {
+  id         String    @id @default(cuid())
+  sessionId  String    @map("session_id")
+  content    String
+  category   String    @default("long_term")
+  memoryType String    @default("factual") @map("memory_type")
+  importance Int       @default(5)
+  tags       String?
+  metadata   Json?
+  expiresAt  DateTime? @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  session    Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([category])
+  @@index([memoryType])
+  @@map("memory")
+}
+
+model File {
+  id            String   @id @default(cuid())
+  fileName      String   @map("file_name")
+  displayName   String   @map("display_name")
+  fileSize      Int      @map("file_size")
+  fileType      String   @map("file_type")
+  fileExtension String   @map("file_extension")
+  content       String?
+  url           String?
+  previewUrl    String?  @map("preview_url")
+  contentHash   String   @map("content_hash")
+  uploadUserId  String?  @map("upload_user_id")
+  sessionId     String?  @map("session_id")
+  messageId     String?  @map("message_id")
+  isPublic      Boolean  @default(false) @map("is_public")
+  fileMetadata  Json?    @map("file_metadata")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  message       Message? @relation(fields: [messageId], references: [id])
+
+  @@index([contentHash])
+  @@index([uploadUserId])
+  @@index([sessionId])
+  @@index([messageId])
+  @@map("file")
+}
+
+model McpServer {
+  id          String   @id @default(cuid())
+  name        String
+  url         String?
+  type        String?
+  description String?
+  headers     Json?
+  command     String?
+  args        Json?
+  env         Json?
+  cwd         String?
+  tools       Json?
+  enabled     Boolean  @default(true)
+  userId      String   @map("user_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("mcp_server")
+}
+
+model SessionContextState {
+  id                     String   @id @default(cuid())
+  sessionId              String   @map("session_id")
+  summaryContent         String?  @map("summary_content")
+  lastCompactedMessageId String?  @map("last_compacted_message_id")
+  lastCompactedContentId String?  @map("last_compacted_content_id")
+  lastPrunedContentId    String?  @map("last_pruned_content_id")
+  cleaningStrategy       String?  @map("cleaning_strategy")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+  pruningMetadata        Json?    @map("pruning_metadata")
+  compressionStats       Json?    @map("compression_stats")
+  session                Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@map("session_context_state")
+}
+
+model UserSetting {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  settings  Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_setting")
+}
+
+model BotInstance {
+  id                 String    @id @default(cuid())
+  userId             String    @map("user_id")
+  platform           String
+  name               String
+  enabled            Boolean   @default(true)
+  platformConfig     Json      @map("platform_config")
+  reconnectEnabled   Boolean   @default(true) @map("reconnect_enabled")
+  maxRetries         Int       @default(5) @map("max_retries")
+  retryInterval      Int       @default(5000) @map("retry_interval")
+  defaultCharacterId String    @map("default_character_id")
+  defaultModelId     String?   @map("default_model_id")
+  status             String    @default("stopped")
+  lastStartedAt      DateTime? @map("last_started_at")
+  lastError          String?   @map("last_error")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  additionalKwargs   Json?     @map("additional_kwargs")
+  user               User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([platform])
+  @@index([status])
+  @@map("bot_instance")
+}
