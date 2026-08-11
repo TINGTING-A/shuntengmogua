@@ -185,7 +185,7 @@ function createEggCharacter(): THREE.Group {
     highlight2.position.set(-0.04, -0.02, 0.17)
     eyeGroup.add(highlight2)
 
-    eyeGroup.position.set(px, py, 1.0)
+    eyeGroup.position.set(px, py, 1.1)
     eyeGroup.renderOrder = 1
     return { group: eyeGroup, pupil }
   }
