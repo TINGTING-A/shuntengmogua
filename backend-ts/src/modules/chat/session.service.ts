@@ -157,13 +157,13 @@ export class SessionService {
     const { title, settings, workspacePath } = data;
 
     if (!characterId) {
-      throw new Error("characterId is required");
+      throw new HttpException("characterId is required", HttpStatus.BAD_REQUEST);
     }
 
     // 获取角色信息
     const character = await this.characterRepo.findById(characterId);
     if (!character) {
-      throw new Error(`Character with ID ${characterId} not found`);
+      throw new HttpException(`Character with ID ${characterId} not found`, HttpStatus.NOT_FOUND);
     }
 
     // 处理会话设置：过滤非法字段 + 处理 memory 继承
