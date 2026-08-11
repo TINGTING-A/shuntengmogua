@@ -157,24 +157,25 @@ function createEggCharacter(): THREE.Group {
   })
   body = new THREE.Mesh(bodyGeom, bodyMat)
   body.castShadow = true
+  body.renderOrder = 0
   group.add(body)
 
   const eyeWhiteGeom = new THREE.SphereGeometry(0.22, 32, 32)
 
   function createEye(px: number, py: number) {
     const eyeGroup = new THREE.Group()
-    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 })
+    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, depthTest: true, depthWrite: true })
     const white = new THREE.Mesh(eyeWhiteGeom, whiteMat)
     eyeGroup.add(white)
 
     const pupilGeom = new THREE.SphereGeometry(0.13, 16, 16)
-    const pupilMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.1 })
+    const pupilMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.1, depthTest: true, depthWrite: true })
     const pupil = new THREE.Mesh(pupilGeom, pupilMat)
     pupil.position.z = 0.12
     eyeGroup.add(pupil)
 
     const highlight1Geom = new THREE.SphereGeometry(0.05, 8, 8)
-    const highlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff })
+    const highlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false })
     const highlight1 = new THREE.Mesh(highlight1Geom, highlightMat)
     highlight1.position.set(0.06, 0.08, 0.18)
     eyeGroup.add(highlight1)
@@ -184,7 +185,8 @@ function createEggCharacter(): THREE.Group {
     highlight2.position.set(-0.04, -0.02, 0.17)
     eyeGroup.add(highlight2)
 
-    eyeGroup.position.set(px, py, 0.88)
+    eyeGroup.position.set(px, py, 1.0)
+    eyeGroup.renderOrder = 1
     return { group: eyeGroup, pupil }
   }
 
