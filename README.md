@@ -254,10 +254,10 @@ guada_ai-master/
 
 ## 系统截图
 
-![截图1](截图1.png)
+![截图1](https://raw.githubusercontent.com/TINGTING-A/shuntengmogua/main/%E6%88%AA%E5%9B%BE1.png)
 
-![截图4](截图4.png)
+![截图4](https://raw.githubusercontent.com/TINGTING-A/shuntengmogua/main/%E6%88%AA%E5%9B%BE4.png)
 
-![截图5](截图5.png)
+![截图5](https://raw.githubusercontent.com/TINGTING-A/shuntengmogua/main/%E6%88%AA%E5%9B%BE5.png)
 
-![截图6](截图6.png)
+![截图6](https://raw.githubusercontent.com/TINGTING-A/shuntengmogua/main/%E6%88%AA%E5%9B%BE6.png)
