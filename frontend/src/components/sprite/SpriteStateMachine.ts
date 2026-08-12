@@ -20,7 +20,7 @@ export interface AnimationConfig {
 
 export const ANIMATION_CONFIGS: Record<AnimationState, AnimationConfig> = {
   idle: {
-    blendShapes: { smile: 0.3, frown: 0, surprise: 0, eyeClose: 0 },
+    blendShapes: { smile: 0.8, frown: 0, surprise: 0, eyeClose: 0 },
     bodyBounce: { amplitude: 0.2, frequency: 1.8 },
     headTilt: { angle: 0.06, speed: 1.0 },
     earWiggle: false,
@@ -63,7 +63,7 @@ export const ANIMATION_CONFIGS: Record<AnimationState, AnimationConfig> = {
     eyeScale: { x: 0.9, y: 1 },
   },
   speaking: {
-    blendShapes: { smile: 0.3, frown: 0, surprise: 0, eyeClose: 0 },
+    blendShapes: { smile: 0.5, frown: 0, surprise: 0, eyeClose: 0 },
     bodyBounce: { amplitude: 0.2, frequency: 2 },
     headTilt: { angle: 0.1, speed: 1.5 },
     earWiggle: false,

@@ -41,8 +41,8 @@ let clock: THREE.Timer
 
 let eggGroup: THREE.Group
 let body: THREE.Mesh
-let leftEye: THREE.Group
-let rightEye: THREE.Group
+let leftEye: THREE.Mesh
+let rightEye: THREE.Mesh
 let leftPupil: THREE.Mesh
 let rightPupil: THREE.Mesh
 let mouth: THREE.Group
@@ -118,8 +118,8 @@ let isBlinking = false
 let renderFrameCount = 0
 
 function createMouthGeometry(smile: number): THREE.BufferGeometry {
-  const w = 0.12
-  const h = 0.03 + smile * 0.07
+  const w = 0.16
+  const h = 0.03 + smile * 0.10
   const shape = new THREE.Shape()
   shape.moveTo(-w, 0)
   shape.quadraticCurveTo(0, -h, w, 0)
@@ -161,41 +161,43 @@ function createEggCharacter(): THREE.Group {
   group.add(body)
 
   function createEye(px: number, py: number) {
-    const eyeGroup = new THREE.Group()
-    const eyeGeom = new THREE.SphereGeometry(0.22, 32, 32)
-    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, depthTest: true, depthWrite: true })
+    const eyeZ = 0.84
+
+    const eyeGeom = new THREE.SphereGeometry(0.26, 32, 32)
+    const whiteMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.1,
+      emissive: 0xffffff,
+      emissiveIntensity: 0.6,
+      depthTest: false,
+      depthWrite: false,
+    })
     const white = new THREE.Mesh(eyeGeom, whiteMat)
-    eyeGroup.add(white)
+    white.position.set(px, py, eyeZ)
+    white.renderOrder = 2
+    group.add(white)
 
-    const pupilGeom = new THREE.SphereGeometry(0.17, 16, 16)
-    const pupilMat = new THREE.MeshStandardMaterial({ color: 0x14142a, roughness: 0.1, depthTest: true, depthWrite: true })
+    const pupilGeom = new THREE.SphereGeometry(0.14, 16, 16)
+    const pupilMat = new THREE.MeshBasicMaterial({ color: 0x2a2a4a, depthTest: false, depthWrite: false })
     const pupil = new THREE.Mesh(pupilGeom, pupilMat)
-    // 关键：瞳孔球心必须伸出眼白表面（眼白半径 0.22 → 球心 0.36），
-    // 否则瞳孔嵌在眼白内部只露一小截，看起来像没有眼睛
-    pupil.position.z = 0.36
-    eyeGroup.add(pupil)
+    pupil.position.set(px, py, eyeZ + 0.28)
+    pupil.renderOrder = 3
+    group.add(pupil)
 
-    // 高光贴瞳孔表面外侧（瞳孔表面 z≈0.53），偏上不遮瞳孔中心
-    const highlight1Geom = new THREE.SphereGeometry(0.035, 8, 8)
-    const highlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false })
-    const highlight1 = new THREE.Mesh(highlight1Geom, highlightMat)
-    highlight1.position.set(0.07, 0.09, 0.54)
-    eyeGroup.add(highlight1)
+    const highlightGeom = new THREE.SphereGeometry(0.04, 8, 8)
+    const highlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, transparent: true, opacity: 0.45 })
+    const highlight = new THREE.Mesh(highlightGeom, highlightMat)
+    highlight.position.set(px + 0.07, py + 0.10, eyeZ + 0.45)
+    highlight.renderOrder = 4
+    group.add(highlight)
 
-    const highlight2Geom = new THREE.SphereGeometry(0.02, 8, 8)
-    const highlight2 = new THREE.Mesh(highlight2Geom, highlightMat)
-    highlight2.position.set(-0.05, -0.04, 0.52)
-    eyeGroup.add(highlight2)
-
-    eyeGroup.position.set(px, py, 1.1)
-    eyeGroup.renderOrder = 1
-    return { group: eyeGroup, pupil }
+    return { white, pupil }
   }
 
   const leftEyeObj = createEye(-0.28, 0.22)
   const rightEyeObj = createEye(0.28, 0.22)
-  leftEye = leftEyeObj.group
-  rightEye = rightEyeObj.group
+  leftEye = leftEyeObj.white
+  rightEye = rightEyeObj.white
   leftPupil = leftEyeObj.pupil
   rightPupil = rightEyeObj.pupil
   group.add(leftEye)
@@ -242,26 +244,26 @@ function createEggCharacter(): THREE.Group {
   group.add(leftEar)
   group.add(rightEar)
 
-  const cheekGeom = new THREE.CircleGeometry(0.15, 24)
-  cheekMat = new THREE.MeshStandardMaterial({
-    color: 0xf9b4ab,
-    roughness: 0.6,
-    transparent: true,
-    opacity: 0.25,
-  })
-  leftCheek = new THREE.Mesh(cheekGeom, cheekMat)
-  leftCheek.position.set(-0.45, -0.15, 0.88)
-  group.add(leftCheek)
-
-  rightCheekMat = new THREE.MeshStandardMaterial({
-    color: 0xf9b4ab,
-    roughness: 0.6,
-    transparent: true,
-    opacity: 0.25,
-  })
-  rightCheek = new THREE.Mesh(cheekGeom.clone(), rightCheekMat)
-  rightCheek.position.set(0.45, -0.15, 0.88)
-  group.add(rightCheek)
+  // 腮红已禁用
+  // const cheekGeom = new THREE.CircleGeometry(0.15, 24)
+  // cheekMat = new THREE.MeshStandardMaterial({
+  //   color: 0xf9b4ab,
+  //   roughness: 0.6,
+  //   transparent: true,
+  //   opacity: 0.25,
+  // })
+  // leftCheek = new THREE.Mesh(cheekGeom, cheekMat)
+  // leftCheek.position.set(-0.45, -0.15, 0.88)
+  // group.add(leftCheek)
+  // rightCheekMat = new THREE.MeshStandardMaterial({
+  //   color: 0xf9b4ab,
+  //   roughness: 0.6,
+  //   transparent: true,
+  //   opacity: 0.25,
+  // })
+  // rightCheek = new THREE.Mesh(cheekGeom.clone(), rightCheekMat)
+  // rightCheek.position.set(0.45, -0.15, 0.88)
+  // group.add(rightCheek)
 
   function createWing(px: number) {
     const wingGroup = new THREE.Group()
@@ -414,10 +416,11 @@ function animate() {
   leftEar.rotation.z = -0.25 + earWiggle
   rightEar.rotation.z = 0.25 - earWiggle
 
-  const smileForCheek = cfg.blendShapes.smile || 0
-  const cheekOpacity = 0.25 + Math.max(0, smileForCheek * 0.5)
-  ;(leftCheek.material as THREE.MeshStandardMaterial).opacity = cheekOpacity
-  ;(rightCheek.material as THREE.MeshStandardMaterial).opacity = cheekOpacity
+  // 腮红已禁用
+  // const smileForCheek = cfg.blendShapes.smile || 0
+  // const cheekOpacity = 0.25 + Math.max(0, smileForCheek * 0.5)
+  // ;(leftCheek.material as THREE.MeshStandardMaterial).opacity = cheekOpacity
+  // ;(rightCheek.material as THREE.MeshStandardMaterial).opacity = cheekOpacity
 
   const wingFlap = cfg.bodyBounce.frequency > 2 ? Math.sin(elapsed * cfg.bodyBounce.frequency * 2) * 0.3 : 0
   leftWing.rotation.z = 0.5 + wingFlap
